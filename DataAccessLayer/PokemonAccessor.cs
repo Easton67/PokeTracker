@@ -17,13 +17,7 @@ namespace DataAccessLayer
     {
         public async Task<Pokemon> GetPokemonInformationAsync(int DexNumber)
         {
-            Pokemon pokemon = GetPokemonName(DexNumber).Result;
-            return pokemon;
-        }
-
-        public async Task<Pokemon> GetPokemonName(int DexNumber)
-        {
-            Pokemon pokemonInfo = new Pokemon();
+            Pokemon pokemonInfo = null;
 
             // PokeAPI base URL
             string baseUrl = "https://pokeapi.co/api/v2/";

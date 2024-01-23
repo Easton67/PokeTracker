@@ -19,6 +19,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using PokeApiNet;
+using System.Security.Cryptography;
 
 namespace PokeTracker
 {
@@ -31,50 +32,46 @@ namespace PokeTracker
         private PokemonManager _pokemonManager = new PokemonManager();
         private DataObjects.Pokemon CurrentPokemon;
         PokeApiClient pokeClient = new PokeApiClient();
+        List<DataObjects.Pokemon> pokemonList = new List<DataObjects.Pokemon>();
         public MainWindow()
         {
             InitializeComponent();
         }
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            List<DataObjects.Pokemon> pokemonList = new List<DataObjects.Pokemon>();
-            string spriteFolder = baseDirectory + "sprites\\";
-            var newPokemon = new DataObjects.Pokemon()
-            {
-                PokemonID = 100000,
-                Name = "Zekrom",
-                DexNumber = 1,
-                Sprite = spriteFolder + "Zekrom_front_sprite.png",
-                CaughtOrNot = true
-            };
-            pokemonList.Add(newPokemon);
-            pokemonList.Add(newPokemon);
-            pokemonList.Add(newPokemon);
-            pokemonList.Add(newPokemon);
-            pokemonList.Add(newPokemon);
-            pokemonList.Add(newPokemon);
-            icPokemon.ItemsSource = pokemonList;
+            PokemonItems();
         }
-        private async void btnPokemonNumber_Click(object sender, RoutedEventArgs e)
+        private async void PokemonItems()
         {
-            try
-            {
-                int DexNumber = int.Parse(txtPokemonNumber.Text);
-                DataObjects.Pokemon pokemonResult = _pokemonManager.GetPokemonInformation(DexNumber).Result;
-                CurrentPokemon = pokemonResult;
-                MessageBox.Show("Finished");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error: {ex.Message}");
-            }
+            int sexnumber = 1;
+            //PokeApiNet.Pokemon pokemon = await pokeClient.GetResourceAsync<PokeApiNet.Pokemon>(sexnumber);
+            //List<Move> allMoves = await pokeClient.GetResourceAsync(pokemon.Moves.Select(move => move.Move));
+            //MessageBox.Show(allMoves[0].Name);
 
-            //// instantiate client
-            //PokeApiClient pokeClient = new PokeApiClient();
+            //LocationArea locationEncounters = await pokeClient.GetResourceAsync<LocationArea>(1);
+            //MessageBox.Show(locationEncounters.Name.ToString());
+            //List<PokemonEncounter> pokemonEncounter = await pokeClient.GetResourceAsync<LocationArea>(1);
 
-            //// get a resource by name
-            //PokeApiNet.Pokemon Pikachu = await pokeClient.GetResourceAsync<PokeApiNet.Pokemon>("Pikachu");
-            //MessageBox.Show(Pikachu.Name);
+            //List<PokemonEncounter> pokemonEncounter = locationEncounters.PokemonEncounters.ToList();
+            //MessageBox.Show(pokemonEncounter[1].ToString());
+
+
+            for (int i = 1; i <= 151; i++)
+            {
+                int dexNumber = i;
+                PokeApiNet.Pokemon pokemon = await pokeClient.GetResourceAsync<PokeApiNet.Pokemon>(dexNumber);
+
+                var newPokemon = new DataObjects.Pokemon()
+                {
+                    PokemonID = 100000,
+                    Name = pokemon.Name.ToUpper(),
+                    DexNumber = dexNumber,
+                    Sprite = pokemon.Sprites.FrontDefault,
+                    CaughtOrNot = false
+                };
+                pokemonList.Add(newPokemon);
+            }
+            icPokemon.ItemsSource = pokemonList;
         }
     }
 }

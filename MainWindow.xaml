@@ -73,51 +73,51 @@
                 <MenuItem Header="Violet" FontSize="25" />
             </MenuItem>
         </Menu>
-        <TextBox x:Name="txtPokemonNumber" Width="100" Height="50" Margin="0,-200,0,0" />
-        <Button x:Name="btnPokemonNumber" Width="100" Height="50" Content="search" Click="btnPokemonNumber_Click" />
-        <ItemsControl 
+        <ScrollViewer>
+            <ItemsControl 
       x:Name="icPokemon" 
       Margin="0,100,0,0" >
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <Border
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border
                   Width="300"
                   Margin="0,0,10,10"
                   Padding="5,5,0,0">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="auto"/>
-                                <RowDefinition Height="auto"/>
-                                <RowDefinition Height="auto"/>
-                                <RowDefinition Height="auto"/>
-                                <RowDefinition Height="auto"/>
-                                <RowDefinition Height="auto"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Background="White">
-                                <StackPanel Grid.Column="0" Grid.Row="0" >
-                                    <Image Grid.Column="0" Grid.Row="0" Source="{Binding Sprite}" Margin="5,0,5,-10" />
-                                </StackPanel>
-                                <StackPanel Grid.Column="1" Grid.Row="0">
-                                    <StackPanel Orientation="horizontal">
-                                        <TextBlock Text="#" FontWeight="Bold" Margin="10,0,0,0" Padding="0,0,0,20"/>
-                                        <TextBlock Text="{Binding DexNumber}" FontWeight="Bold" Padding="0,0,0,20" Margin="5,0,0,0"/>
-                                        <TextBlock Text="{Binding Name}" FontWeight="Bold" Padding="0,0,0,20" Margin="5,0,0,0"/>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Background="White">
+                                    <StackPanel Grid.Column="0" Grid.Row="0" >
+                                        <Image Grid.Column="0" Grid.Row="0" Source="{Binding Sprite}" Margin="5,0,5,-10" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Grid.Row="0">
+                                        <StackPanel Orientation="horizontal">
+                                            <TextBlock Text="#" FontWeight="Bold" Margin="10,0,0,0" Padding="0,0,0,20"/>
+                                            <TextBlock Text="{Binding DexNumber}" FontWeight="Bold" Padding="0,0,0,20" Margin="5,0,0,0"/>
+                                            <TextBlock Text="{Binding Name}" FontWeight="Bold" Padding="0,0,0,20" Margin="5,0,0,0"/>
+                                        </StackPanel>
                                     </StackPanel>
                                 </StackPanel>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <WrapPanel />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-        </ItemsControl >
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl >
+        </ScrollViewer>
     </Grid>
 </Window>
