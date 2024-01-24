@@ -23,6 +23,9 @@ using System.Security.Cryptography;
 using System.Net;
 using Newtonsoft.Json.Linq;
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
+using System.Security.Policy;
+using System.Globalization;
 
 namespace PokeTracker
 {
@@ -37,18 +40,36 @@ namespace PokeTracker
         PokeApiClient pokeClient = new PokeApiClient();
         List<DataObjects.Pokemon> pokemonList = new List<DataObjects.Pokemon>();
 
-
         List<String> KantoLocations = new List<string>();
+        List<String> KantoID = new List<string>();
+
         List<String> JhotoLocations = new List<string>();
+        List<String> JhotoID = new List<string>();
+
         List<String> HoennLocations = new List<string>();
+        List<String> HoennID = new List<string>();
+
         List<String> SinnohLocations = new List<string>();
+        List<String> SinnohID = new List<string>();
+
         List<String> UnovaLocations = new List<string>();
+        List<String> UnovaID = new List<string>();
+
         List<String> KalosLocations = new List<string>();
+        List<String> KalosID = new List<string>();
+
         List<String> AlolaLocations = new List<string>();
+        List<String> AlolaID = new List<string>();
+
         List<String> GalarLocations = new List<string>();
+        List<String> GalarID = new List<string>();
+
         List<String> PaldeaLocations = new List<string>();
+        List<String> PaldeaID = new List<string>();
+
 
         string pokemonLocation;
+        string pokeLocation = "Location Not Found";
 
         public MainWindow()
         {
@@ -56,65 +77,135 @@ namespace PokeTracker
         }
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            int generation = 1;
-            GetKantoLocations(generation);
-            PokemonItems();
+            int dexNumber = 72;
+            PokeApiNet.Pokemon pokemon = await pokeClient.GetResourceAsync<PokeApiNet.Pokemon>(dexNumber);
+            int generation = 4;
+            GetPokemonLocation(dexNumber, pokemon, generation);
+            // PokemonItems();
         }
-        public async void GetKantoLocations(int generation)
+
+        public async void GetPokemonLocation(int dexNumber, PokeApiNet.Pokemon pokemon, int generation)
         {
             PokeApiNet.Region region = await pokeClient.GetResourceAsync<PokeApiNet.Region>(generation);
+
+            // Retrieve Sinnoh region data asynchronously
+            //PokeApiNet.Location sinnohRegion = await pokeClient.GetResourceAsync<PokeApiNet.Location>("Sinnoh");
+            //MessageBox.Show(sinnohRegion.Areas.ToList().ToString());
+
+            // Retrieve all locations in the Sinnoh region asynchronously
+
+            //PokeApiNet.LocationArea locations = await pokeClient.GetResourceAsync<LocationArea>(region.Id);
+            //MessageBox.Show(locations.Location.Name.ToString());
+
+            //foreach(var loc in locations)
+            //{
+            //    MessageBox.Show(loc.Location.Name);
+            //}
+
+            //region.Locations.ToList();
+            //MessageBox.Show(region.Locations.Count().ToString());
+            //// Retrieve all locations in the Sinnoh region asynchronously
+            //PokeApiNet.LocationArea sinnohLocations = await pokeClient.GetResourceAsync<LocationArea>(2);
+
+            //// Iterate through each LocationArea in the Sinnoh region
+            //foreach (var loc in sinnohLocations)
+            //{
+            //    // Retrieve detailed information about the LocationArea
+            //    var detailedLocationArea = await pokeClient.GetResourceAsync<LocationArea>(locationArea.Name);
+
+            //    Console.WriteLine($"LocationArea Name: {detailedLocationArea.Name}");
+            //    // Additional information about the location area can be accessed through other properties
+            //    // Your code logic here
+            //}
+
+
+
+
+
+            //PokeApiNet.Region region = await pokeClient.GetResourceAsync<PokeApiNet.Region>(generation);
             foreach (var location in region.Locations)
             {
-                PokeApiNet.Location locationDetails = await pokeClient.GetResourceAsync<PokeApiNet.Location>(location.Name);
-                KantoLocations.Add(locationDetails.Name);
+                //MessageBox.Show(region.MainGeneration.Name);
+
+
+
+                string urlOfLocation = location.Url.TrimEnd('/');
+
+                string pattern = @"/([^/]+)$";
+                Regex regex = new Regex(pattern);
+
+                Match match = regex.Match(urlOfLocation);
+
+                string locationID = match.Success ? match.Groups[1].Value : string.Empty;
+
+                KantoID.Add(locationID);
+                KantoLocations.Add(location.Name);
             }
-        }
 
-
-
-        public async void GetPokemonLocation(PokeApiNet.Pokemon pokemon, int generation)
-        {
-            foreach (var kanto in KantoLocations)
+            // PokeApiNet.Location locationDetails = await pokeClient.GetResourceAsync<PokeApiNet.Location>(locationID);
+            //pokemon.LocationAreaEncounters.ToList();
+            LocationArea locationAreaEncounter = await pokeClient.GetResourceAsync<LocationArea>(1);
+            foreach (var encounter in locationAreaEncounter.PokemonEncounters)
             {
-                locationAreaEncounter = await pokeClient.GetResourceAsync<LocationArea>(kanto);
-                foreach (var encounter in locationAreaEncounter.PokemonEncounters)
+                encounter.Pokemon.Name.ToList();
+                if (KantoLocations.Contains(locationAreaEncounter.Location.Name))
                 {
                     if (encounter.Pokemon.Name == pokemon.Name)
                     {
-                        MessageBox.Show(pokemon.Name);
-                        pokemonLocation = kanto;
+                        PokeApiNet.Location kantoName = await pokeClient.GetResourceAsync<PokeApiNet.Location>(1);
+                        pokeLocation = locationAreaEncounter.Location.Name;
                     }
                 }
             }
-        }
 
+                //for (int i = 0; i < locationDetails.Areas.ToList().Count(); i++)
+                //{
+                //    string locationDetailsName = locationDetails.Areas[i].Name;
+                //    foreach (var kantoID in KantoID)
+                //    {
 
-        private async void PokemonItems()
-        {
-            for (int i = 1; i <= 3; i++)
+                //    }
+                //}
+            var newPokemon = new DataObjects.Pokemon()
             {
-                int dexNumber = i;
-                int generation = 1;
-                PokeApiNet.Pokemon pokemon = await pokeClient.GetResourceAsync<PokeApiNet.Pokemon>(dexNumber);
-                GetPokemonLocation(pokemon, generation);
-                var newPokemon = new DataObjects.Pokemon()
-                {
-                    PokemonID = 100000,
-                    Name = pokemon.Name.ToUpper(),
-                    DexNumber = dexNumber,
-                    Sprite = pokemon.Sprites.FrontDefault,
-                    CaughtOrNot = false,
-                    Location = pokemonLocation
-                };
-                pokemonList.Add(newPokemon);
-            }
+                PokemonID = 100000,
+                Name = pokemon.Name.ToUpper(),
+                DexNumber = dexNumber,
+                Sprite = pokemon.Sprites.FrontDefault,
+                CaughtOrNot = false,
+                Location = pokeLocation,
+            };
+            pokemonList.Add(newPokemon);
             icPokemon.ItemsSource = pokemonList;
         }
+
+        //private async void PokemonItems()
+        //{
+        //        for (int i = 1; i <= 10; i++)    
+        //        {
+        //            int dexNumber = i;
+        //    int generation = 1;
+        //    PokeApiNet.Pokemon pokemon = await pokeClient.GetResourceAsync<PokeApiNet.Pokemon>(dexNumber);
+        //    GetPokemonLocation(pokemon, generation);
+        //    var newPokemon = new DataObjects.Pokemon()
+        //    {
+        //        PokemonID = 100000,
+        //        Name = pokemon.Name.ToUpper(),
+        //        DexNumber = dexNumber,
+        //        Sprite = pokemon.Sprites.FrontDefault,
+        //        CaughtOrNot = false,
+        //        Location = pokeLocation,
+        //    };
+        //    pokemonList.Add(newPokemon);
+        //        }
+        //icPokemon.ItemsSource = pokemonList;
+        //    }
 
         private void mnuGen1_Click(object sender, RoutedEventArgs e)
         {
 
         }
+
     }
 }
 
