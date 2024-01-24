@@ -19,7 +19,7 @@
                VerticalAlignment="Top" 
                Background="#FF787171" 
                Width="1700">
-            <MenuItem Header="Gen 1" FontSize="30" >
+            <MenuItem x:Name="mnuGen1" Header="Gen 1" FontSize="30" Click="mnuGen1_Click" >
                 <MenuItem Header="Red" FontSize="25" />
                 <MenuItem Header="Blue" FontSize="25" HorizontalContentAlignment="Center" />
                 <MenuItem Header="Yellow" FontSize="25" />
@@ -106,6 +106,7 @@
                                             <TextBlock Text="{Binding DexNumber}" FontWeight="Bold" Padding="0,0,0,20" Margin="5,0,0,0"/>
                                             <TextBlock Text="{Binding Name}" FontWeight="Bold" Padding="0,0,0,20" Margin="5,0,0,0"/>
                                         </StackPanel>
+                                        <TextBlock Text="{Binding Location}" FontWeight="Bold" Padding="0,0,0,20" Margin="5,0,0,0"/>
                                     </StackPanel>
                                 </StackPanel>
                             </Grid>

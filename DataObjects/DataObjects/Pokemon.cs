@@ -14,5 +14,6 @@ namespace DataObjects
         public int DexNumber { get; set; }
         public string Sprite { get; set; }
         public bool CaughtOrNot { get; set; }
+        public string Location { get; set; }
     }
 }
