@@ -26,12 +26,22 @@ using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using System.Security.Policy;
 using System.Globalization;
+using System.Diagnostics;
+using Microsoft.Extensions.Primitives;
 
 namespace PokeTracker
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+    /// 
+    class Area
+    {
+        public string Identifier { get; set; }
+        public string Location { get;set; }
+        public string ID { get; set; }
+    }
+
     public partial class MainWindow : Window
     {
         private string baseDirectory = AppContext.BaseDirectory;
@@ -67,6 +77,8 @@ namespace PokeTracker
         List<String> PaldeaLocations = new List<string>();
         List<String> PaldeaID = new List<string>();
 
+        List<Area> areas;
+
 
         string pokemonLocation;
         string pokeLocation = "Location Not Found";
@@ -74,98 +86,43 @@ namespace PokeTracker
         public MainWindow()
         {
             InitializeComponent();
+
+            areas = new List<Area>();
+
+            string[] names = new string[]
+            {
+                "Kanto",
+                "Jhoto",
+                "Hoenn",
+                "Sinnoh",
+                "Unova",
+                "Kalos",
+                "Alola",
+                "Galar",
+                "Paldea"
+            };
+            foreach(string name in names)
+            {
+                areas.Add(new Area()
+                {
+                    Identifier = name,
+                    Location = "",
+                    ID = ""
+                });
+            }
         }
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            int dexNumber = 72;
+            int dexNumber = 585;
             PokeApiNet.Pokemon pokemon = await pokeClient.GetResourceAsync<PokeApiNet.Pokemon>(dexNumber);
-            int generation = 4;
-            GetPokemonLocation(dexNumber, pokemon, generation);
-            // PokemonItems();
+            string gameName = "Black";
+            PokemonItems(dexNumber, pokemon, gameName);
         }
 
-        public async void GetPokemonLocation(int dexNumber, PokeApiNet.Pokemon pokemon, int generation)
+        public async void PokemonItems(int dexNumber, PokeApiNet.Pokemon pokemon, string gameName)
         {
-            PokeApiNet.Region region = await pokeClient.GetResourceAsync<PokeApiNet.Region>(generation);
+            string pokeLocation = GetLocation(dexNumber, gameName).Replace("-", " ").ToUpper();
 
-            // Retrieve Sinnoh region data asynchronously
-            //PokeApiNet.Location sinnohRegion = await pokeClient.GetResourceAsync<PokeApiNet.Location>("Sinnoh");
-            //MessageBox.Show(sinnohRegion.Areas.ToList().ToString());
-
-            // Retrieve all locations in the Sinnoh region asynchronously
-
-            //PokeApiNet.LocationArea locations = await pokeClient.GetResourceAsync<LocationArea>(region.Id);
-            //MessageBox.Show(locations.Location.Name.ToString());
-
-            //foreach(var loc in locations)
-            //{
-            //    MessageBox.Show(loc.Location.Name);
-            //}
-
-            //region.Locations.ToList();
-            //MessageBox.Show(region.Locations.Count().ToString());
-            //// Retrieve all locations in the Sinnoh region asynchronously
-            //PokeApiNet.LocationArea sinnohLocations = await pokeClient.GetResourceAsync<LocationArea>(2);
-
-            //// Iterate through each LocationArea in the Sinnoh region
-            //foreach (var loc in sinnohLocations)
-            //{
-            //    // Retrieve detailed information about the LocationArea
-            //    var detailedLocationArea = await pokeClient.GetResourceAsync<LocationArea>(locationArea.Name);
-
-            //    Console.WriteLine($"LocationArea Name: {detailedLocationArea.Name}");
-            //    // Additional information about the location area can be accessed through other properties
-            //    // Your code logic here
-            //}
-
-
-
-
-
-            //PokeApiNet.Region region = await pokeClient.GetResourceAsync<PokeApiNet.Region>(generation);
-            foreach (var location in region.Locations)
-            {
-                //MessageBox.Show(region.MainGeneration.Name);
-
-
-
-                string urlOfLocation = location.Url.TrimEnd('/');
-
-                string pattern = @"/([^/]+)$";
-                Regex regex = new Regex(pattern);
-
-                Match match = regex.Match(urlOfLocation);
-
-                string locationID = match.Success ? match.Groups[1].Value : string.Empty;
-
-                KantoID.Add(locationID);
-                KantoLocations.Add(location.Name);
-            }
-
-            // PokeApiNet.Location locationDetails = await pokeClient.GetResourceAsync<PokeApiNet.Location>(locationID);
-            //pokemon.LocationAreaEncounters.ToList();
-            LocationArea locationAreaEncounter = await pokeClient.GetResourceAsync<LocationArea>(1);
-            foreach (var encounter in locationAreaEncounter.PokemonEncounters)
-            {
-                encounter.Pokemon.Name.ToList();
-                if (KantoLocations.Contains(locationAreaEncounter.Location.Name))
-                {
-                    if (encounter.Pokemon.Name == pokemon.Name)
-                    {
-                        PokeApiNet.Location kantoName = await pokeClient.GetResourceAsync<PokeApiNet.Location>(1);
-                        pokeLocation = locationAreaEncounter.Location.Name;
-                    }
-                }
-            }
-
-                //for (int i = 0; i < locationDetails.Areas.ToList().Count(); i++)
-                //{
-                //    string locationDetailsName = locationDetails.Areas[i].Name;
-                //    foreach (var kantoID in KantoID)
-                //    {
-
-                //    }
-                //}
             var newPokemon = new DataObjects.Pokemon()
             {
                 PokemonID = 100000,
@@ -178,6 +135,44 @@ namespace PokeTracker
             pokemonList.Add(newPokemon);
             icPokemon.ItemsSource = pokemonList;
         }
+
+        private string GetLocation(int pokemonNumber, string gameName)
+        {
+            // Specify the path to the Python interpreter (python.exe)
+            string pythonPath = @"C:\Users\67Eas\AppData\Local\Microsoft\WindowsApps\python.exe";
+
+            // Specify the path to your Python script
+            string scriptPath = @"C:\Users\67Eas\Downloads\pokeAPI\main.py";
+
+            // Create a command string with the script path and arguments
+            string command = $"{scriptPath} {pokemonNumber} \"{gameName}\"";
+
+            // Create a new process start info
+            ProcessStartInfo psi = new ProcessStartInfo
+            {
+                FileName = pythonPath,
+                Arguments = command,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                CreateNoWindow = true
+            };
+
+            // Create a new process and start it
+            using (Process process = new Process { StartInfo = psi })
+            {
+                process.Start();
+
+                // Read the output (if needed)
+                string output = process.StandardOutput.ReadToEnd();
+
+                // Wait for the process to exit
+                process.WaitForExit();
+
+                return output;
+            }
+        }
+
+
 
         //private async void PokemonItems()
         //{
@@ -211,7 +206,7 @@ namespace PokeTracker
 
 
 
-
+            // change this logic
 
 
             //List<Move> allMoves = await pokeClient.GetResourceAsync(pokemon.Moves.Select(move => move.Move));
