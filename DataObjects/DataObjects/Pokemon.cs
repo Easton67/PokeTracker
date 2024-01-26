@@ -15,5 +15,7 @@ namespace DataObjects
         public string Sprite { get; set; }
         public bool CaughtOrNot { get; set; }
         public string Location { get; set; }
+        public string Evolution { get; set; }
+        public string MainType { get; set; }
     }
 }
